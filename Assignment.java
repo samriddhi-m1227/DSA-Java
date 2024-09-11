@@ -1,58 +1,75 @@
-package labInsertionSort;
+package labHeapSort;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.util.*;
 
-class Assignment {
-    private static void insertionSort(int[] arr) {
-    	
-    	//run insertion sort 
-    	for (int i=1; i< arr.length; i++) { //starts from index 1 as first element is considered 'sorted'.
-    		int key=arr[i]; //containing arr[i] in variable 'key'
-    		int j=i-1;
-    		
-    		while(j>=0 && arr[j]>=key) { 	
-    			//shifting:
-    			arr[j+1]=arr[j];
-    			j--; //decrement j
-    		}
-    		
-    		//insert key at correct position
-    		arr[j+1]=key;
-    		
-    		// Print the subarray at the end of each iteration to show invariant
-            printSubArray(arr, i);
-    	}    
-    }
-    
+public class Assignment {
 
-    // Print the subarray arr[0, 1, ..., j] with ";" after elements
-    private static void printSubArray(int[] arr, int j) {
-        for (int index = 0; index < arr.length && index <= j; index++) {
-            System.out.print(arr[index]);
-            System.out.print(";");
+    public static int[] heapify(int[] heap, int sizeA, int index) {
+    	//indexed at 0 so adjustment to calculating children was made 
+        int l=index*2+1; 
+        int r= (index*2)+2;
+        int largest;
+        
+        if(l<sizeA && heap[l]>heap[index]) {
+        	largest=l;
         }
-        System.out.println();
+        	else {
+        		largest=index;
+        	}
+        if(r<sizeA && heap[r]>heap[largest]) {
+        	largest=r;
+        }
+        
+        if(largest!=index) {
+        	//exchange a[index] with largest
+        	int tmp= heap[largest];
+        	heap[largest]=heap[index];
+        	heap[index]=tmp;
+        	
+        	heap=heapify(heap, sizeA, largest);
+        	
+        }
+        return heap;
     }
 
-    public static void run(String input_path) {
-        int[] sequence;
-        int arraySize = 1;
+    public static int[] buildHeap(int[] arr, int sizeA) {
+        for (int i= (sizeA-1)/2; i>=0; i--) {
+        	arr=heapify(arr, sizeA, i); 
+        }
+        return arr;
+    }
 
-        try (BufferedReader br = new BufferedReader(new FileReader(input_path))) {
-            // Get the size of the sequence
-            arraySize = Integer.parseInt(br.readLine());
-            sequence = new int[arraySize];
+    public static int[] heapSort(int[] arr, int sizeA) {
+    	arr= buildHeap(arr, sizeA);
+       for (int i = sizeA-1; i>0; i--) {
+    	   
+    	   //exchange a[0] (largest element) with a[i](to the end)
+    	   int tmp= arr[0];
+    	   arr[0]=arr[i];
+    	   arr[i]=tmp;
+    	   
+    	   sizeA--;
+    	   arr=heapify(arr, sizeA, 0); 
+       }
+       return arr;
+    }
 
-            // Read the sequence
-            for (int i = 0; i < arraySize; i++) {
-                sequence[i] = Integer.parseInt(br.readLine());
+    public static void run(String inputPath) {
+        try (BufferedReader br = new BufferedReader(new FileReader(inputPath))) {
+            int size = Integer.parseInt(br.readLine());
+            int[] A = new int[size];
+
+            for (int i = 0; i < size; i++) {
+                A[i] = Integer.parseInt(br.readLine());
             }
 
-            // Perform insertion sort in-place
-            insertionSort(sequence);
+            int[] heap = heapSort(A, size);
 
+            for (int i = 0; i < size; i++) {
+                System.out.print(heap[i] + ";");
+            }
+            System.out.println();
         } catch (IOException e) {
             e.printStackTrace();
         }
